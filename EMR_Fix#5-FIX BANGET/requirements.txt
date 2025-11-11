@@ -1,0 +1,42 @@
+# File: requirements.txt
+# Dependencies yang sudah ada (pastikan ini sudah terinstall)
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-Mail==0.9.1
+PyMySQL==1.1.0
+cryptography==41.0.7
+Werkzeug==3.0.1
+pyotp==2.9.0
+qrcode==7.4.2
+itsdangerous==2.1.2
+Pillow==10.1.0
+
+# ===== DEPENDENCIES BARU =====
+
+# 1. Export ke PDF
+reportlab==4.0.7
+# Atau alternatif (pilih salah satu):
+# weasyprint==60.1
+
+# 2. Export ke Excel
+openpyxl==3.1.2
+xlsxwriter==3.1.9
+
+# 3. Rate Limiting
+Flask-Limiter==3.5.0
+
+# 4. Scheduler untuk Reminder
+APScheduler==3.10.4
+
+# 5. Upload File
+Flask-Uploads==0.2.1
+
+# 6. Progress Bar (opsional, untuk UI)
+tqdm==4.66.1
+
+# 7. Phone Number Validation (untuk SMS reminder)
+phonenumbers==8.13.26
+
+# 8. Timezone Support
+pytz==2023.3.post1

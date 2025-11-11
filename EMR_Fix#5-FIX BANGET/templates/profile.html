@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+{% block title %}Profil Saya{% endblock %}
+{% block content %}
+<h3>Profil Saya</h3>
+
+{# --- Card Informasi Akun & Data Diri --- #}
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Informasi Akun</h5>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="mb-1"><strong>Username:</strong> {{ current_user.username }}</p>
+                <p class="mb-1"><strong>Peran (Role):</strong> {{ current_user.role|capitalize }}</p>
+                <p class="mb-1"><strong>Email:</strong> {{ current_user.email or '-' }}</p>
+            </div>
+        </div>
+
+        {# --- Tampilkan Data Diri untuk SEMUA ROLE yang sudah lengkapi profil --- #}
+        {% if current_user.is_profile_complete %}
+        <hr>
+        <h6 class="card-subtitle mb-2 text-muted">Data Diri</h6>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="mb-1"><strong>NIK:</strong> {{ current_user.nik }}</p>
+                <p class="mb-1"><strong>Nama Lengkap:</strong> {{ current_user.full_name }}</p>
+                <p class="mb-1"><strong>Tanggal Lahir:</strong> {{ current_user.date_of_birth.strftime('%d %B %Y') if current_user.date_of_birth else '-' }}</p>
+            </div>
+            <div class="col-md-6">
+                <p class="mb-1"><strong>Kontak:</strong> {{ current_user.contact }}</p>
+                <p class="mb-1"><strong>Alamat:</strong> {{ current_user.address }}</p>
+            </div>
+        </div>
+
+        {# ========== PERBAIKAN: DEKLARASI VARIABEL DI LUAR KONDISI ========== #}
+        <hr>
+        <h6 class="card-subtitle mb-3 text-muted">Foto Profil & Dokumen</h6>
+        
+        {# TENTUKAN PATH FOTO DI AWAL #}
+        {% set profile_photo_path = None %}
+        {% set ktp_photo_path = None %}
+        
+        {% if current_user.role == 'pasien' and current_user.patient_record %}
+            {% if current_user.patient_record.profile_photo %}
+                {% set profile_photo_path = current_user.patient_record.profile_photo %}
+            {% endif %}
+            {% if current_user.patient_record.ktp_photo %}
+                {% set ktp_photo_path = current_user.patient_record.ktp_photo %}
+            {% endif %}
+        {% elif current_user.role in ['admin', 'dokter', 'apoteker'] %}
+            {% if current_user.profile_photo %}
+                {% set profile_photo_path = current_user.profile_photo %}
+            {% endif %}
+            {% if current_user.ktp_photo %}
+                {% set ktp_photo_path = current_user.ktp_photo %}
+            {% endif %}
+        {% endif %}
+        
+        <div class="row g-3 mb-3">
+            <!-- Foto Profil -->
+            <div class="col-md-6">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h6><i class="bi bi-person-circle text-primary"></i> Foto Profil</h6>
+                        
+                        {% if profile_photo_path %}
+                            <div class="alert alert-success small mb-2">
+                                <i class="bi bi-check-circle-fill"></i> Foto sudah terupload
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm" 
+                                    data-bs-toggle="modal" data-bs-target="#profilePhotoModal">
+                                <i class="bi bi-eye-fill"></i> Lihat Foto
+                            </button>
+                            {# DEBUG INFO #}
+                            <div class="mt-2">
+                                <small class="text-muted">Path: {{ profile_photo_path }}</small>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning small">
+                                <i class="bi bi-exclamation-triangle"></i> Belum ada foto
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Foto KTP -->
+            <div class="col-md-6">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <h6><i class="bi bi-card-heading text-success"></i> Foto KTP</h6>
+                        
+                        {% if ktp_photo_path %}
+                            <div class="alert alert-success small mb-2">
+                                <i class="bi bi-check-circle-fill"></i> Foto sudah terupload
+                            </div>
+                            <button type="button" class="btn btn-success btn-sm" 
+                                    data-bs-toggle="modal" data-bs-target="#ktpPhotoModal">
+                                <i class="bi bi-eye-fill"></i> Lihat Foto
+                            </button>
+                            {# DEBUG INFO #}
+                            <div class="mt-2">
+                                <small class="text-muted">Path: {{ ktp_photo_path }}</small>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning small">
+                                <i class="bi bi-exclamation-triangle"></i> Belum ada foto
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tombol Upload/Ganti Foto -->
+        <div class="text-center">
+            {% if current_user.role == 'pasien' and current_user.patient_record %}
+                <a href="{{ url_for('upload_patient_photos', patient_id=current_user.patient_record.id) }}" 
+                   class="btn btn-primary">
+                    <i class="bi bi-upload"></i> Upload / Ganti Foto
+                </a>
+            {% else %}
+                <a href="{{ url_for('upload_staff_photos') }}" 
+                   class="btn btn-primary">
+                    <i class="bi bi-upload"></i> Upload / Ganti Foto
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# --- Card Ubah Email --- #}
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Ubah Email</h5>
+        <hr>
+        <form action="{{ url_for('request_email_change') }}" method="POST">
+            <div class="mb-3">
+                <label for="new_email" class="form-label">Email Baru</label>
+                <input type="email" class="form-control" id="new_email" name="new_email" placeholder="Masukkan email baru Anda" required>
+            </div>
+            <div class="mb-3">
+                <label for="current_password" class="form-label">Password Saat Ini (Konfirmasi)</label>
+                <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Masukkan password Anda saat ini" required>
+                <div class="form-text">Diperlukan untuk memverifikasi perubahan.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Kirim Link Konfirmasi ke Email Baru</button>
+        </form>
+    </div>
+</div>
+
+{# --- Card Keamanan Akun (2FA) --- #}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">Keamanan Akun</h5>
+        <hr>
+        <h6><i class="bi bi-shield-lock-fill text-primary"></i> Autentikasi Dua Faktor (2FA)</h6>
+        {% if current_user.otp_secret %}
+            <p class="text-success fw-bold">Status: Aktif</p>
+            <div class="alert alert-success small">
+                2FA sudah aktif. Setiap kali login, Anda akan diminta memasukkan kode dari aplikasi authenticator Anda.
+            </div>
+        {% else %}
+            <p class="text-danger fw-bold">Status: Tidak Aktif</p>
+            <div class="alert alert-warning small">
+                Amankan akun Anda dengan mengaktifkan autentikasi dua faktor. Anda akan memerlukan aplikasi seperti Google Authenticator atau Authy.
+            </div>
+            <a href="{{ url_for('setup_2fa') }}" class="btn btn-primary">Aktifkan Sekarang</a>
+        {% endif %}
+    </div>
+</div>
+
+{# ========== MODAL FOTO PROFIL (PERBAIKAN) ========== #}
+<div class="modal fade" id="profilePhotoModal" tabindex="-1" aria-labelledby="profilePhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profilePhotoModalLabel">
+                    <i class="bi bi-person-circle"></i> Foto Profil Anda
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                {% if profile_photo_path %}
+                    {# PERBAIKAN: Gunakan path absolut #}
+                    <img src="{{ url_for('static', filename='uploads/' + profile_photo_path) }}" 
+                         alt="Foto Profil" 
+                         class="img-fluid rounded shadow"
+                         style="max-height: 70vh; object-fit: contain;"
+                         onerror="this.onerror=null; this.style.display='none'; document.getElementById('profile_error_msg').style.display='block';">
+                    <div id="profile_error_msg" style="display:none;" class="alert alert-danger mt-3">
+                        <i class="bi bi-exclamation-triangle"></i> Gagal memuat foto<br>
+                        <small>Path: static/uploads/{{ profile_photo_path }}</small>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i> Foto tidak tersedia
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ========== MODAL FOTO KTP (PERBAIKAN) ========== #}
+<div class="modal fade" id="ktpPhotoModal" tabindex="-1" aria-labelledby="ktpPhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ktpPhotoModalLabel">
+                    <i class="bi bi-card-heading"></i> Foto KTP Anda
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                {% if ktp_photo_path %}
+                    {# PERBAIKAN: Gunakan path absolut #}
+                    <img src="{{ url_for('static', filename='uploads/' + ktp_photo_path) }}" 
+                         alt="Foto KTP" 
+                         class="img-fluid rounded shadow"
+                         style="max-height: 70vh; object-fit: contain;"
+                         onerror="this.onerror=null; this.style.display='none'; document.getElementById('ktp_error_msg').style.display='block';">
+                    <div id="ktp_error_msg" style="display:none;" class="alert alert-danger mt-3">
+                        <i class="bi bi-exclamation-triangle"></i> Gagal memuat foto<br>
+                        <small>Path: static/uploads/{{ ktp_photo_path }}</small>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i> Foto tidak tersedia
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Animasi smooth untuk modal */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+}
+
+/* Responsive untuk mobile */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .modal-body img {
+        max-height: 60vh !important;
+    }
+}
+
+/* Hover effect untuk tombol */
+.btn-primary:hover, .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
+{% endblock %}

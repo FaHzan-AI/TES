@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Akun Terverifikasi</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .header { font-size: 24px; color: #28a745; text-align: center; }
+        .content { margin-top: 20px; }
+        .button { display: inline-block; padding: 12px 24px; margin: 20px 0; background-color: #4781ff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .footer { margin-top: 20px; font-size: 12px; color: #888; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">🎉 Akun Anda Telah Aktif</div>
+        <div class="content">
+            <p>Halo, <strong>{{ user.username }}</strong>,</p>
+            <p>Selamat! Akun Anda telah diverifikasi dan diaktifkan oleh administrator.</p>
+            
+            <p>Anda sekarang dapat menggunakan semua fitur EMR Sehat:</p>
+            <ul>
+                <li>Membuat janji konsultasi</li>
+                <li>Melihat rekam medis</li>
+                <li>Mengecek tagihan</li>
+                <li>Dan banyak lagi...</li>
+            </ul>
+            
+            <div style="text-align: center;">
+                <a href="{{ url_for('login', _external=True) }}" class="button">Login Sekarang</a>
+            </div>
+            
+            <p>Terima kasih telah bergabung dengan EMR Sehat!</p>
+        </div>
+        <div class="footer">
+            &copy; {{ now.year }} EMR Sehat.
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Konsultasi Disetujui{% endblock %}
+{% block content %}
+<h3>Daftar Konsultasi (Disetujui Admin)</h3>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nama Pasien</th>
+                        <th>Tanggal Pengajuan</th>
+                        <th>Keluhan</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in appointments %}
+                    <tr>
+                        <td>{{ app.patient.full_name }}</td>
+                        <td>{{ app.appointment_date.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ app.reason }}</td>
+                        <td class="text-end">
+                            {% if app.patient.patient_record %}
+                                <a href="{{ url_for('patient_detail', patient_id=app.patient.patient_record.id, appointment_id=app.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-play-circle-fill"></i> Mulai Pemeriksaan
+                                </a>
+                            {% else %}
+                                <span class="badge bg-danger">Data Pasien Hilang</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">Belum ada permintaan konsultasi yang disetujui.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

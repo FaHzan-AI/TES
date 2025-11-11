@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Hubungi Admin{% endblock %}
+
+{% block content %}
+<h3>Kirim Pesan ke Admin</h3>
+<p>Jika Anda mengalami masalah (misal: data tidak sinkron, tidak bisa melengkapi profil, dll), silakan kirim pesan di bawah ini.</p>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('hubungi_admin') }}">
+            <div class="mb-3">
+                <label for="subjek" class="form-label">Subjek</label>
+                <input type="text" class="form-control" id="subjek" name="subjek" required placeholder="Contoh: Tidak bisa melengkapi profil">
+            </div>
+            <div class="mb-3">
+                <label for="pesan" class="form-label">Isi Pesan</label>
+                <textarea class="form-control" id="pesan" name="pesan" rows="6" required placeholder="Jelaskan masalah yang Anda alami... (Sebutkan NIK/Username Anda)"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-send-fill"></i> Kirim Pesan</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

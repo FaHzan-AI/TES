@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Konsultasi Disetujui</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .container { width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .header { font-size: 24px; color: #28a745; text-align: center; }
+        .content { margin-top: 20px; }
+        .info-box { background-color: #f0f9ff; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .footer { margin-top: 20px; font-size: 12px; color: #888; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">✅ Konsultasi Anda Disetujui</div>
+        <div class="content">
+            <p>Halo, <strong>{{ patient.username }}</strong>,</p>
+            <p>Kami dengan senang hati menginformasikan bahwa permintaan konsultasi Anda telah <strong>DISETUJUI</strong>.</p>
+            
+            <div class="info-box">
+                <h3>Detail Konsultasi:</h3>
+                <ul>
+                    <li><strong>Dokter:</strong> {{ appointment.doctor.username }}</li>
+                    <li><strong>Tanggal:</strong> {{ appointment.appointment_date.strftime('%d %B %Y') }}</li>
+                    <li><strong>Keluhan:</strong> {{ appointment.reason }}</li>
+                </ul>
+            </div>
+            
+            <p>Mohon datang tepat waktu. Jika berhalangan, harap hubungi kami secepatnya.</p>
+            <p>Terima kasih telah menggunakan layanan EMR Sehat.</p>
+        </div>
+        <div class="footer">
+            &copy; {{ now.year }} EMR Sehat.
+        </div>
+    </div>
+</body>
+</html>

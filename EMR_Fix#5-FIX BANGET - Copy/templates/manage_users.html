@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+{% block title %}Manajemen Pengguna{% endblock %}
+
+{% block content %}
+
+{# --- Bagian Notifikasi --- #}
+{% if unverified_patients %}
+<div class="card shadow-sm mb-4 border-warning">
+    <div class="card-header bg-warning text-dark fw-bold">
+        <i class="bi bi-person-check-fill"></i> Pasien Menunggu Aktivasi Akun
+    </div>
+    <div class="card-body">
+        <p class="text-muted small">Pasien berikut telah mendaftar dan menunggu akunnya diaktifkan oleh Admin.</p>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Peran</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in unverified_patients %}
+                    <tr>
+                        <td>{{ patient.username }}</td>
+                        <td>{{ patient.role|capitalize }}</td>
+                        <td class="text-end">
+                            <form action="{{ url_for('verify_user', user_id=patient.id) }}" method="POST">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-circle"></i> Aktifkan Akun
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if unverified_staff %}
+<div class="card shadow-sm mb-4 border-info">
+    <div class="card-header bg-info text-dark fw-bold">
+        <i class="bi bi-person-video3"></i> Staf Menunggu Verifikasi Data
+    </div>
+    <div class="card-body">
+        <p class="text-muted small">Staf berikut (Dokter/Apoteker) telah melengkapi profil mereka. Tinjau data mereka dan berikan verifikasi.</p>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Peran</th>
+                        <th>NIK</th>
+                        <th>Nama Lengkap</th>
+                        <th>Kontak</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for staff in unverified_staff %}
+                    <tr>
+                        <td>{{ staff.username }}</td>
+                        <td>{{ staff.role|capitalize }}</td>
+                        <td>{{ staff.nik }}</td>
+                        <td>{{ staff.full_name }}</td>
+                        <td>{{ staff.contact }}</td>
+                        <td class="text-end">
+                            <form action="{{ url_for('verify_user', user_id=staff.id) }}" method="POST">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-circle"></i> Verifikasi Data
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if orphaned_patients %}
+<div class="card shadow-sm mb-4 border-danger">
+    <div class="card-header bg-danger text-white fw-bold">
+        <i class="bi bi-exclamation-triangle-fill"></i> Pasien dengan Rekam Medis Hilang
+    </div>
+    <div class="card-body">
+        <p class="text-muted small">Pasien berikut sudah terverifikasi namun data rekam medisnya (tabel 'patient') tidak ditemukan. Klik "Buat Ulang" untuk memulihkan akses mereka.</p>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Nama Lengkap</th>
+                        <th>Username</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in orphaned_patients %}
+                    <tr>
+                        <td>{{ patient.full_name }}</td>
+                        <td>{{ patient.username }}</td>
+                        <td class="text-end">
+                            <form action="{{ url_for('recreate_patient_record', user_id=patient.id) }}" method="POST">
+                                <button type="submit" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-person-plus-fill"></i> Buat Ulang RM
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# --- Tabel Pengguna Aktif (UPDATED WITH NIK) --- #}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Pengguna Aktif</h3>
+    <a href="{{ url_for('create_user_by_admin') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Tambah Pengguna Internal
+    </a>
+</div>
+<div class="card shadow-sm mb-5">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>NIK</th>
+                        <th>Peran (Role)</th>
+                        <th>Status Verifikasi</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users if user.is_active_db %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.nik }}</td>
+                        <td>{{ user.role|capitalize }}</td>
+                        <td>
+                            {% if user.role == 'pasien' %}
+                                {% if user.verification_status == 'aktif' %}
+                                    <span class="badge bg-success">Terverifikasi</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Belum Diverifikasi</span>
+                                {% endif %}
+                            {% else %}
+                                {% if user.verification_status == 'aktif' %}
+                                    <span class="badge bg-success">Aktif & Terverifikasi</span>
+                                {% elif user.verification_status == 'menunggu verifikasi data' %}
+                                    <span class="badge bg-info text-dark">Menunggu Verifikasi Data</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Belum Lengkapi Profil</span>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            {% if current_user.id != user.id %}
+                            <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin menonaktifkan pengguna ini?');">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-person-x-fill"></i> Nonaktifkan
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not users|selectattr('is_active_db')|list %}
+                    <tr>
+                        <td colspan="5" class="text-center">Tidak ada pengguna aktif.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{# --- TABEL Pengguna Nonaktif (UPDATED WITH NIK) --- #}
+<h3 class="mt-5">Pengguna Nonaktif</h3>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>NIK</th>
+                        <th>Peran (Role)</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users if not user.is_active_db %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.nik }}</td>
+                        <td>{{ user.role|capitalize }}</td>
+                        <td class="text-end">
+                            <form action="{{ url_for('undelete_user', user_id=user.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin mengaktifkan kembali pengguna ini?');">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-person-check-fill"></i> Aktifkan Kembali
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not users|rejectattr('is_active_db')|list %}
+                    <tr>
+                        <td colspan="4" class="text-center">Tidak ada pengguna nonaktif.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

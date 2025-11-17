@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Manajemen Pembayaran{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Konfirmasi Pembayaran</h3>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tgl Kunjungan</th>
+                        <th>Pasien</th>
+                        <th>Jumlah</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tagihan in tagihan_list %}
+                    <tr>
+                        <td>{{ tagihan.visit.visit_date.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ tagihan.visit.patient.full_name }}</td>
+                        <td>Rp {{ "{:,.2f}".format(tagihan.jumlah) }}</td>
+                        <td class="text-end">
+                            <form action="{{ url_for('konfirmasi_pembayaran', pembayaran_id=tagihan.id) }}" method="POST" onsubmit="return confirm('Yakin ingin mengonfirmasi pembayaran ini?');">
+                                <button type="submit" class="btn btn-sm btn-success">Konfirmasi Lunas</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">Tidak ada pembayaran yang perlu dikonfirmasi.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

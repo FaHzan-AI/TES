@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Tagihan Saya{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Riwayat Tagihan Anda</h3>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Tanggal Kunjungan</th>
+                        <th>Dokter</th>
+                        <th>Rincian Biaya</th>
+                        <th class="text-end">Total Tagihan</th>
+                        <th>Status</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tagihan in tagihan_list %}
+                    <tr>
+                        <td>{{ tagihan.visit.visit_date.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ tagihan.visit.doctor.username }}</td>
+                        <td>
+                            <ul class="list-unstyled mb-0">
+                                <li>
+                                    <span class="text-muted">Konsultasi:</span>
+                                    Rp {{ "{:,.0f}".format(tagihan.biaya_konsultasi or 0) }}
+                                </li>
+                                <li>
+                                    <span class="text-muted">Obat:</span>
+                                    Rp {{ "{:,.0f}".format(tagihan.biaya_obat or 0) }}
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="text-end fw-bold">Rp {{ "{:,.0f}".format(tagihan.jumlah) }}</td>
+                        <td>
+                            {% if tagihan.status == 'Lunas' %}
+                                <span class="badge bg-success">Lunas</span>
+                            {% else %}
+                                <span class="badge bg-danger">Belum Lunas</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('export_invoice_to_pdf', pembayaran_id=tagihan.id) }}" 
+                               class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-printer-fill"></i> Cetak
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">Tidak ada tagihan.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-info mt-3">
+            Silakan lakukan pembayaran total tagihan di kasir dan minta admin untuk mengonfirmasi pembayaran Anda.
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Pasien{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Selamat Datang, {{ current_user.username }}!</h3>
+</div>
+<div class="alert alert-info" role="alert">
+  Ini adalah halaman dashboard Anda. Di sini Anda bisa melihat status permintaan konsultasi Anda.
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">Status Konsultasi Anda</h5>
+        <hr>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Dokter</th>
+                        <th>Tanggal Konsultasi</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in appointments %}
+                    <tr>
+                        <td>{{ app.doctor.username }}</td>
+                        <td>{{ app.appointment_date.strftime('%d-%m-%Y') }}</td>
+                        <td>
+                            {% if app.status == 'Pending' %}
+                                <span class="badge bg-warning text-dark">Menunggu Persetujuan</span>
+                            {% elif app.status == 'Approved' %}
+                                <span class="badge bg-info">Disetujui</span>
+                            {% elif app.status == 'Finished' %}
+                                {% if app.patient_confirmed_finished %}
+                                    <span class="badge bg-success">Selesai & Dikonfirmasi</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Selesai (Menunggu Konfirmasi Anda)</span>
+                                {% endif %}
+                            {% elif app.status == 'Rejected' %}
+                                <span class="badge bg-danger">Ditolak</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center">Anda belum memiliki riwayat konsultasi.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

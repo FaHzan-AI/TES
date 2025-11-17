@@ -1,0 +1,25 @@
+{% extends 'base_blank.html' %}
+{% block title %}Verifikasi Dua Langkah{% endblock %}
+
+{% block form_title %}Verifikasi Akun Anda{% endblock %}
+
+{% block form_content %}
+<div class="alert alert-info small text-center">
+    Sebuah kode verifikasi telah dikirim ke aplikasi authenticator Anda. Masukkan kode tersebut untuk melanjutkan.
+</div>
+<form method="POST" action="{{ url_for('login_2fa') }}">
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="token" name="token" 
+               placeholder="6-Digit Kode" required 
+               pattern="\d{6}" maxlength="6" inputmode="numeric"
+               autocomplete="one-time-code">
+        <label for="token">6-Digit Kode Verifikasi</label>
+    </div>
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary btn-lg">Verifikasi & Login</button>
+    </div>
+</form>
+<p class="text-center mt-3 small">
+    <a href="{{ url_for('login') }}">Kembali ke Halaman Login</a>
+</p>
+{% endblock %}

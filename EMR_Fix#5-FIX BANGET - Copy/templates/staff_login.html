@@ -1,0 +1,94 @@
+{% extends 'base_blank.html' %}
+{% block title %}Login Staff - Batam Sehat{% endblock %}
+
+{% block form_title %}
+    <i class="bi bi-shield-lock-fill text-primary"></i> Login Staff
+{% endblock %}
+
+{% block form_content %}
+<div class="alert alert-info small">
+    <i class="bi bi-info-circle-fill"></i> Halaman ini khusus untuk <strong>Admin, Dokter, dan Apoteker</strong>
+</div>
+
+<form method="POST" action="{{ url_for('staff_login') }}" id="staffLoginForm">
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="username" name="username" 
+               placeholder="Username" required autocomplete="username">
+        <label for="username"><i class="bi bi-person-badge"></i> Username Staff</label>
+    </div>
+    
+    <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="password" name="password" 
+               placeholder="Password" required autocomplete="current-password">
+        <label for="password"><i class="bi bi-lock-fill"></i> Password</label>
+    </div>
+    
+    <!-- Security Info -->
+    <div class="alert alert-warning small mb-3">
+        <i class="bi bi-exclamation-triangle-fill"></i> <strong>Keamanan:</strong> Maksimal 8 percobaan login. Setelah itu akun akan terkunci selama 15 menit.
+    </div>
+    
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-box-arrow-in-right"></i> Login Sekarang
+        </button>
+    </div>
+</form>
+
+<!-- Links -->
+<div class="mt-4 text-center">
+    <div class="row g-2">
+        <div class="col-12">
+            <a href="{{ url_for('reset_password_request') }}" class="text-decoration-none">
+                <i class="bi bi-key-fill"></i> Lupa Password?
+            </a>
+        </div>
+        <div class="col-12">
+            <hr>
+            <a href="{{ url_for('patient_login') }}" class="text-success">
+                <i class="bi bi-person-heart"></i> Login sebagai Pasien
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-focus username field
+document.getElementById('username').focus();
+
+// Form validation
+document.getElementById('staffLoginForm').addEventListener('submit', function(e) {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    
+    if (username.length < 3) {
+        e.preventDefault();
+        alert('Username minimal 3 karakter!');
+        return false;
+    }
+    
+    if (password.length < 6) {
+        e.preventDefault();
+        alert('Password minimal 6 karakter!');
+        return false;
+    }
+});
+</script>
+
+<style>
+.form-floating > label {
+    padding-left: 1rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+</style>
+{% endblock %}

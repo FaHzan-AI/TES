@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pilih Tipe Login - Batam Sehat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-choice-container {
+            max-width: 900px;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        .logo-container img {
+            max-width: 120px;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+        }
+        
+        .logo-container h1 {
+            color: white;
+            font-weight: bold;
+            margin-top: 1rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .choice-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .choice-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .choice-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+        
+        .staff-card .choice-icon {
+            color: #4781ff;
+        }
+        
+        .patient-card .choice-icon {
+            color: #28a745;
+        }
+        
+        .choice-card h3 {
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .choice-card p {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+        
+        .choice-card .btn {
+            padding: 12px 40px;
+            font-weight: bold;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .staff-card .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        
+        .patient-card .btn {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            border: none;
+        }
+        
+        .alert {
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .choice-card {
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-choice-container">
+        <!-- Logo & Title -->
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Batam Sehat Logo">
+            <h1>Batam Sehat</h1>
+            <p class="text-white">Sistem Rekam Medis Elektronik</p>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Login Choice Cards -->
+        <div class="row g-4">
+            <!-- Staff Login -->
+            <div class="col-md-6">
+                <div class="choice-card staff-card" onclick="window.location='{{ url_for('staff_login') }}'">
+                    <i class="bi bi-shield-lock-fill choice-icon"></i>
+                    <h3>Login Staff</h3>
+                    <p>Untuk Admin, Dokter, dan Apoteker</p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li><i class="bi bi-check-circle-fill text-primary"></i> Keamanan tingkat tinggi</li>
+                        <li><i class="bi bi-check-circle-fill text-primary"></i> Akses penuh sistem</li>
+                        <li><i class="bi bi-check-circle-fill text-primary"></i> Dukungan 2FA</li>
+                    </ul>
+                    <a href="{{ url_for('staff_login') }}" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Login Staff
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Patient Login -->
+            <div class="col-md-6">
+                <div class="choice-card patient-card" onclick="window.location='{{ url_for('patient_login') }}'">
+                    <i class="bi bi-person-heart choice-icon"></i>
+                    <h3>Login Pasien</h3>
+                    <p>Untuk Pasien Terdaftar</p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Lihat rekam medis</li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Buat janji konsultasi</li>
+                        <li><i class="bi bi-check-circle-fill text-success"></i> Cek tagihan</li>
+                    </ul>
+                    <a href="{{ url_for('patient_login') }}" class="btn btn-success">
+                        <i class="bi bi-box-arrow-in-right"></i> Login Pasien
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Register Link -->
+        <div class="text-center mt-4">
+            <p class="text-white">
+                Belum punya akun pasien? 
+                <a href="{{ url_for('register') }}" class="text-white fw-bold text-decoration-underline">
+                    Daftar di sini
+                </a>
+            </p>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

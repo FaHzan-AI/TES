@@ -1,0 +1,24 @@
+{% extends 'base_blank.html' %}
+{% block title %}Login EMR{% endblock %}
+
+{% block form_title %}Silakan login ke akun Anda{% endblock %}
+
+{% block form_content %}
+<form method="POST" action="{{ url_for('login') }}">
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+        <label for="username">Username</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+        <label for="password">Password</label>
+    </div>
+    <div class="d-grid">
+        <button type="submit" class="btn btn-primary btn-lg">Login</button>
+    </div>
+    <div class="d-flex justify-content-between mt-3 small">
+        <a href="{{ url_for('register') }}">Belum punya akun?</a>
+        <a href="{{ url_for('reset_password_request') }}">Lupa Password?</a>
+    </div>
+</form>
+{% endblock %}

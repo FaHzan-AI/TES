@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Selamat Datang, Admin {{ current_user.username }}!</h3>
+</div>
+<div class="alert alert-info" role="alert">
+  Berikut adalah daftar permintaan konsultasi dari pasien yang menunggu persetujuan Anda.
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header fw-bold">
+        <i class="bi bi-journal-check"></i> Permintaan Konsultasi Menunggu Persetujuan
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nama Pasien</th>
+                        <th>Dokter Tujuan</th>
+                        <th>Tanggal Konsultasi</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in appointments %}
+                    <tr>
+                        <td>{{ app.patient.full_name }}</td>
+                        <td>{{ app.doctor.username }}</td>
+                        <td>{{ app.appointment_date.strftime('%d-%m-%Y') }}</td>
+                        <td class="text-end">
+                            <a href="{{ url_for('manage_appointments') }}" class="btn btn-sm btn-primary">
+                                Proses Sekarang
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">Tidak ada permintaan konsultasi baru.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

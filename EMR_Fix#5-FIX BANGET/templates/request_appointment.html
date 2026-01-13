@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Ajukan Konsultasi{% endblock %}
+{% block content %}
+<h3>Pilih Jadwal Konsultasi yang Tersedia</h3>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="GET" id="doctorSelectForm" class="mb-4">
+            <div class="mb-3">
+                <label for="doctor_select" class="form-label">1. Pilih Dokter Terlebih Dahulu</label>
+                <select name="doctor_id" id="doctor_select" class="form-select" onchange="document.getElementById('doctorSelectForm').submit()">
+                    <option value="">-- Pilih Dokter --</option>
+                    {% for doctor in doctors %}
+                        <option value="{{ doctor.id }}" {% if doctor.id == selected_doctor_id %}selected{% endif %}>
+                            {{ doctor.username }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        {% if selected_doctor_id %}
+        <hr>
+        <form method="POST" id="appointmentForm">
+            <div class="mb-3">
+                <label for="slot_select" class="form-label">2. Pilih Waktu Konsultasi</label>
+                <select name="slot_id" id="slot_select" class="form-select" required>
+                    <option value="">-- Pilih salah satu jadwal --</option>
+                    {% for slot in slots %}
+                        <option value="{{ slot.id }}">
+                            {{ slot.start_time.strftime('%d %B %Y, Jam %H:%M') }}
+                        </option>
+                    {% else %}
+                        <option value="" disabled>Tidak ada jadwal tersedia untuk dokter ini.</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="reason" class="form-label">3. Keluhan atau Alasan Konsultasi</label>
+                <textarea class="form-control" name="reason" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submitBtn">Buat Janji Temu</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

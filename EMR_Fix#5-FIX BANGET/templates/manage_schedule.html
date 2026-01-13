@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Verifikasi Jadwal Dokter{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Verifikasi Jadwal</h3>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header fw-bold bg-warning text-dark">
+        <i class="bi bi-calendar-plus-fill"></i> Pengajuan Jadwal Baru (Menunggu Persetujuan)
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Dokter</th>
+                        <th>Tanggal Pengajuan</th>
+                        <th>Jam Praktik</th>
+                        <th>Jumlah Slot</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in schedule_requests %}
+                    <tr>
+                        <td>{{ req.doctor }}</td>
+                        <td>{{ req.date }}</td>
+                        <td>{{ req.slots[0].start_time.strftime('%H:%M') }} - {{ req.slots[-1].end_time.strftime('%H:%M') }}</td>
+                        <td>{{ req.slots|length }} slot</td>
+                        <td class="text-end">
+                            <form action="{{ url_for('update_schedule_status', request_id=req.request_id) }}" method="POST" class="d-inline">
+                                <button type="submit" name="status" value="Approved" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-lg"></i> Setujui
+                                </button>
+                                <button type="submit" name="status" value="Rejected" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-x-lg"></i> Tolak
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Tidak ada pengajuan jadwal baru.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header fw-bold bg-info text-dark">
+        <i class="bi bi-calendar-check-fill"></i> Pengajuan Selesai Jadwal (Diminta Dokter)
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Dokter</th>
+                        <th>Tanggal</th>
+                        <th>Total Slot</th>
+                        <th>Sisa Slot (Available)</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in finish_requests %}
+                    <tr>
+                        <td>{{ req.doctor }}</td>
+                        <td>{{ req.date }}</td>
+                        <td>{{ req.total_slots }} slot</td>
+                        <td>{{ req.sisa_available }} slot</td>
+                        <td class="text-end">
+                            <form action="{{ url_for('confirm_finish_schedule', request_id=req.request_id) }}" method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin menyelesaikan jadwal ini? Sisa slot ({{ req.sisa_available }}) akan dibatalkan.');">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-check-circle-fill"></i> Konfirmasi Selesai
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Tidak ada pengajuan penyelesaian jadwal.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

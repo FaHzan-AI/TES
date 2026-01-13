@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en" data-theme="{{ current_theme }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>{% block title %}Batam Sehat{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom_style.css') }}">
+    
+    <style>
+        /* ========== DARK MODE VARIABLES ========== */
+        :root {
+            --bs-body-bg: #ffffff;
+            --bs-body-color: #212529;
+            --bs-card-bg: #ffffff;
+            --bs-navbar-bg: #ffffff;
+            --bs-sidebar-bg: #212529;
+            --bs-table-hover: rgba(71, 129, 255, 0.05);
+            --bs-border-color: #dee2e6;
+        }
+        
+        [data-theme="dark"] {
+            --bs-body-bg: #0d1117;
+            --bs-body-color: #e6edf3;
+            --bs-card-bg: #161b22;
+            --bs-navbar-bg: #161b22;
+            --bs-sidebar-bg: #0d1117;
+            --bs-table-hover: rgba(71, 129, 255, 0.15);
+            --bs-border-color: #30363d;
+        }
+        
+        /* ========== APPLY DARK MODE ========== */
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .navbar {
+            background-color: var(--bs-navbar-bg) !important;
+            border-color: var(--bs-border-color);
+        }
+        
+        .card {
+            background-color: var(--bs-card-bg);
+            border-color: var(--bs-border-color);
+        }
+        
+        #layoutSidenav_nav {
+            background-color: var(--bs-sidebar-bg);
+        }
+        
+        /* Dark mode untuk table */
+        [data-theme="dark"] .table {
+            color: var(--bs-body-color);
+            border-color: var(--bs-border-color);
+        }
+        
+        [data-theme="dark"] .table tbody tr:hover {
+            background-color: var(--bs-table-hover);
+        }
+        
+        [data-theme="dark"] .table thead {
+            border-color: var(--bs-border-color);
+        }
+        
+        /* Dark mode untuk form */
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select {
+            background-color: #2d323a;
+            border-color: var(--bs-border-color);
+            color: var(--bs-body-color);
+        }
+        
+        [data-theme="dark"] .form-control:focus,
+        [data-theme="dark"] .form-select:focus {
+            background-color: #2d323a;
+            color: var(--bs-body-color);
+            border-color: var(--bs-primary);
+        }
+        
+        [data-theme="dark"] .form-control::placeholder {
+            color: #6c757d;
+        }
+        
+        /* Dark mode untuk modal */
+        [data-theme="dark"] .modal-content {
+            background-color: var(--bs-card-bg);
+            color: var(--bs-body-color);
+        }
+        
+        [data-theme="dark"] .modal-header,
+        [data-theme="dark"] .modal-footer {
+            border-color: var(--bs-border-color);
+        }
+        
+        /* Dark mode untuk dropdown */
+        [data-theme="dark"] .dropdown-menu {
+            background-color: var(--bs-card-bg);
+            border-color: var(--bs-border-color);
+        }
+        
+        [data-theme="dark"] .dropdown-item {
+            color: var(--bs-body-color);
+        }
+        
+        [data-theme="dark"] .dropdown-item:hover {
+            background-color: rgba(71, 129, 255, 0.1);
+        }
+        
+        [data-theme="dark"] .dropdown-divider {
+            border-color: var(--bs-border-color);
+        }
+        
+        /* Dark mode untuk navbar text */
+        [data-theme="dark"] .navbar .navbar-brand,
+        [data-theme="dark"] .navbar .nav-link {
+            color: #e6edf3 !important;
+        }
+
+        /* Dark mode untuk semua text */
+        [data-theme="dark"] h1,
+        [data-theme="dark"] h2,
+        [data-theme="dark"] h3,
+        [data-theme="dark"] h4,
+        [data-theme="dark"] h5,
+        [data-theme="dark"] h6,
+        [data-theme="dark"] p,
+        [data-theme="dark"] span,
+        [data-theme="dark"] div,
+        [data-theme="dark"] label,
+        [data-theme="dark"] li,
+        [data-theme="dark"] a {
+            color: #e6edf3 !important;
+        }
+
+        /* Dark mode untuk card header */
+        [data-theme="dark"] .card-header {
+            background-color: #21262d;
+            color: #e6edf3;
+            border-color: var(--bs-border-color);
+        }
+        
+        /* Dark mode untuk alert */
+        [data-theme="dark"] .alert {
+            border-color: var(--bs-border-color);
+        }
+        
+        /* Dark mode untuk badge */
+        [data-theme="dark"] .badge.bg-light {
+            background-color: #3a3f4b !important;
+            color: #e6edf3 !important;
+        }
+
+        /* Dark mode untuk text-muted */
+        [data-theme="dark"] .text-muted {
+            color: #8b949e !important;
+        }
+
+        /* Dark mode untuk list group */
+        [data-theme="dark"] .list-group-item {
+            background-color: var(--bs-card-bg);
+            color: #e6edf3;
+            border-color: var(--bs-border-color);
+        }
+
+        /* Dark mode untuk card title & subtitle */
+        [data-theme="dark"] .card-title,
+        [data-theme="dark"] .card-subtitle {
+            color: #e6edf3 !important;
+        }
+
+        /* Dark mode untuk input placeholder */
+        [data-theme="dark"] ::placeholder {
+            color: #6e7681 !important;
+            opacity: 1;
+        }
+
+        /* Dark mode untuk pre dan code */
+        [data-theme="dark"] pre,
+        [data-theme="dark"] code {
+            background-color: #21262d;
+            color: #e6edf3;
+        }
+
+        /* Dark mode untuk hr */
+        [data-theme="dark"] hr {
+            border-color: var(--bs-border-color);
+            opacity: 0.5;
+        }
+        
+        /* ========== THEME TOGGLE BUTTON ========== */
+        #themeToggle {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            color: var(--bs-body-color);
+        }
+        
+        #themeToggle:hover {
+            transform: scale(1.2) rotate(20deg);
+        }
+        
+        /* Show/Hide icons based on theme */
+        [data-theme="dark"] #themeToggle .bi-sun-fill {
+            display: inline;
+        }
+        
+        [data-theme="dark"] #themeToggle .bi-moon-stars-fill {
+            display: none;
+        }
+        
+        [data-theme="light"] #themeToggle .bi-sun-fill {
+            display: none;
+        }
+        
+        [data-theme="light"] #themeToggle .bi-moon-stars-fill {
+            display: inline;
+        }
+        
+        /* ========== LAYOUT STYLES ========== */
+        #layoutSidenav {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        #layoutSidenav_nav {
+            background-color: var(--bs-sidebar-bg);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1038;
+        }
+
+        [data-theme="dark"] #layoutSidenav_nav .nav-link {
+            color: #8b949e;
+        }
+
+        [data-theme="dark"] #layoutSidenav_nav .nav-link:hover {
+            color: #e6edf3;
+        }
+
+        [data-theme="dark"] #layoutSidenav_nav .nav-link.active {
+            color: #ffffff;
+            background-color: var(--bs-primary);
+        }
+        #layoutSidenav_content {
+            flex-grow: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        @media (min-width: 992px) {
+            .sb-sidenav-toggled #layoutSidenav_nav {
+                transform: translateX(-260px);
+            }
+            .sb-sidenav-toggled #layoutSidenav_content {
+                margin-left: -260px;
+            }
+        }
+        
+        @media (max-width: 991.98px) {
+            #layoutSidenav_nav {
+                position: fixed;
+                top: 56px;
+                left: 0;
+                height: calc(100vh - 56px);
+                transform: translateX(-260px);
+                box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            }
+            
+            body.sb-sidenav-toggled #layoutSidenav_nav {
+                transform: translateX(0);
+            }
+            
+            body.sb-sidenav-toggled::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 1037;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            #layoutSidenav_content {
+                margin-left: 0 !important;
+                width: 100%;
+            }
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+        }
+        .nav-link .bi {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="sb-nav-fixed">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+        <div class="container-fluid">
+            <button class="btn btn-outline-primary me-2" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            
+            <a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" 
+                    alt="Batam Sehat Logo" 
+                    style="height: 40px; margin-right: 10px; vertical-align: middle;">
+                <span style="vertical-align: middle;">Batam Sehat</span>
+            </a>
+
+            <div class="d-flex align-items-center ms-auto">
+                <!-- ========== THEME TOGGLE BUTTON (BARU!) ========== -->
+                <button id="themeToggle" class="me-3" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+                    <i class="bi bi-moon-stars-fill"></i>
+                    <i class="bi bi-sun-fill"></i>
+                </button>
+                
+                {% if current_user.is_authenticated %}
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        <span class="d-none d-md-inline">Halo, {{ current_user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><h6 class="dropdown-header">Peran: {{ current_user.role|capitalize }}</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('profile') }}">
+                                <i class="bi bi-person-fill"></i> Profil Saya
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {% else %}
+                <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div id="layoutSidenav">
+        <div id="layoutSidenav_nav">
+            <nav class="d-flex flex-column flex-shrink-0 p-3 h-100 bg-dark text-white">
+                <div class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' or request.endpoint == 'dashboard_inactive' %}active{% endif %}">
+                            <i class="bi bi-speedometer2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ url_for('hubungi_admin') }}" class="nav-link {% if request.endpoint == 'hubungi_admin' %}active{% endif %}">
+                            <i class="bi bi-envelope-fill"></i>
+                            Hubungi Admin
+                        </a>
+                    </li>
+
+                    {% if current_user.is_active_db %}
+                        {% if current_user.role == 'pasien' %}
+                        <li>
+                            <a href="{{ url_for('request_appointment') }}" class="nav-link {% if request.endpoint == 'request_appointment' %}active{% endif %}">
+                                <i class="bi bi-calendar-plus-fill"></i>
+                                Ajukan Konsultasi
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('my_appointments') }}" class="nav-link {% if request.endpoint == 'my_appointments' %}active{% endif %}">
+                                <i class="bi bi-list-check"></i>
+                                Riwayat Konsultasi
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('lihat_pembayaran') }}" class="nav-link {% if request.endpoint == 'lihat_pembayaran' %}active{% endif %}">
+                                <i class="bi bi-wallet2"></i>
+                                Tagihan Saya
+                            </a>
+                        </li>
+                        {% if current_user.patient_record %}
+                        <li>
+                            <a href="{{ url_for('upload_patient_photos', patient_id=current_user.patient_record.id) }}" 
+                               class="nav-link {% if request.endpoint == 'upload_patient_photos' %}active{% endif %}">
+                                <i class="bi bi-images"></i>
+                                Foto & Dokumen
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+
+                        {% if current_user.role == 'dokter' %}
+                        <li>
+                            <a href="{{ url_for('view_appointments') }}" class="nav-link {% if request.endpoint == 'view_appointments' %}active{% endif %}">
+                                <i class="bi bi-journal-check"></i>
+                                Konsultasi Disetujui
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('doctor_schedule') }}" class="nav-link {% if request.endpoint == 'doctor_schedule' %}active{% endif %}">
+                                <i class="bi bi-calendar-event-fill"></i>
+                                Jadwal Saya
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if current_user.role == 'apoteker' %}
+                        <li>
+                            <a href="{{ url_for('apoteker_dashboard') }}" class="nav-link {% if request.endpoint == 'apoteker_dashboard' %}active{% endif %}">
+                                <i class="bi bi-prescription2"></i>
+                                Resep Baru
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('apoteker_riwayat') }}" class="nav-link {% if request.endpoint == 'apoteker_riwayat' %}active{% endif %}">
+                                <i class="bi bi-clock-history"></i>
+                                Riwayat Resep
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if current_user.role == 'admin' or current_user.role == 'dokter' %}
+                        <li>
+                            <a href="{{ url_for('manage_patients') }}" class="nav-link {% if request.endpoint == 'manage_patients' %}active{% endif %}">
+                                <i class="bi bi-people-fill"></i>
+                                Manajemen Pasien
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('reports') }}" class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}">
+                                <i class="bi bi-file-earmark-bar-graph-fill"></i>
+                                Laporan
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if current_user.role == 'admin' %}
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear-fill"></i>
+                                Administrasi
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('admin_analytics') }}">
+                                        <i class="bi bi-graph-up-arrow"></i> Analytics Dashboard
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_inbox') }}">Kotak Masuk (Support)</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('manage_users') }}">Manajemen User</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('manage_appointments') }}">Manajemen Konsultasi</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('manage_pembayaran') }}">Manajemen Pembayaran</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('manage_schedules') }}">Verifikasi Jadwal</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <hr>
+                {% if current_user.is_authenticated %}
+                <div class="small text-muted text-center">
+                    Login sebagai: <strong>{{ current_user.username }}</strong>
+                </div>
+                {% endif %}
+            </nav>
+        </div>
+        
+        <div id="layoutSidenav_content">
+            <main class="p-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // ========== SIDEBAR TOGGLE ========== //
+        window.addEventListener('DOMContentLoaded', event => {
+            const sidebarToggle = document.body.querySelector('#sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', event => {
+                    event.preventDefault();
+                    document.body.classList.toggle('sb-sidenav-toggled');
+                });
+            }
+        });
+
+        // ========== MOBILE SIDEBAR AUTO-CLOSE ========== //
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('#layoutSidenav_nav .nav-link');
+            const dropdownItems = document.querySelectorAll('#layoutSidenav_nav .dropdown-item');
+            const isMobile = () => window.innerWidth < 992;
+            
+            function closeSidebar() {
+                if (isMobile()) {
+                    document.body.classList.remove('sb-sidenav-toggled');
+                }
+            }
+            
+            navLinks.forEach(link => {
+                if (!link.classList.contains('dropdown-toggle')) {
+                    link.addEventListener('click', closeSidebar);
+                }
+            });
+            
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', closeSidebar);
+            });
+            
+            document.addEventListener('click', function(event) {
+                if (document.body.classList.contains('sb-sidenav-toggled') && isMobile()) {
+                    const sidebar = document.getElementById('layoutSidenav_nav');
+                    const toggleBtn = document.getElementById('sidebarToggle');
+                    
+                    if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+                        document.body.classList.remove('sb-sidenav-toggled');
+                    }
+                }
+            });
+        });
+
+        // ========== DARK MODE TOGGLE (FITUR BARU!) ========== //
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const htmlElement = document.documentElement;
+            
+            // Fungsi untuk toggle theme
+            function toggleTheme() {
+                const currentTheme = htmlElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // Animasi smooth
+                document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+                
+                // Update theme di HTML
+                htmlElement.setAttribute('data-theme', newTheme);
+                
+                // Simpan ke server via AJAX
+                fetch('/toggle_theme', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ theme: newTheme })
+                }).catch(error => {
+                    console.error('Error saving theme:', error);
+                });
+                
+                // Animasi tombol (rotate)
+                themeToggle.style.transform = 'rotate(360deg)';
+                setTimeout(() => {
+                    themeToggle.style.transform = 'rotate(0deg)';
+                }, 300);
+            }
+            
+            // Event listener untuk button
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+                themeToggle.style.transition = 'transform 0.3s ease';
+            }
+            
+            // Keyboard shortcut: Ctrl/Cmd + D untuk toggle
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                    e.preventDefault();
+                    toggleTheme();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

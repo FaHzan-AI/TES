@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Laporan & Statistik{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Laporan & Statistik</h3>
+</div>
+<a href="{{ url_for('export_reports_to_excel', **request.args) }}" 
+   class="btn btn-success">
+    <i class="bi bi-file-earmark-excel-fill"></i> Export ke Excel
+</a>
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center h-100">
+            <div class="card-body">
+                <h1 class="display-4"><i class="bi bi-people-fill text-primary"></i></h1>
+                <h2 class="card-title">{{ patient_count }}</h2>
+                <p class="card-text">Total Pasien Terdaftar</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center h-100">
+            <div class="card-body">
+                <h1 class="display-4"><i class="bi bi-person-badge-fill text-success"></i></h1>
+                <h2 class="card-title">{{ doctor_count }}</h2>
+                <p class="card-text">Total Dokter</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center h-100">
+            <div class="card-body">
+                <h1 class="display-4"><i class="bi bi-clipboard2-pulse-fill text-info"></i></h1>
+                <h2 class="card-title">{{ visit_count }}</h2>
+                <p class="card-text">Total Kunjungan Tercatat</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header fw-bold">
+        <i class="bi bi-search"></i> Filter Laporan Kunjungan
+    </div>
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('reports') }}">
+            <div class="row g-3 align-items-end">
+                
+                <div class="col-md-6 col-lg-3">
+                    <label for="q_rm" class="form-label">No. Rekam Medis</label>
+                    <input type="text" class="form-control" name="q_rm" id="q_rm" value="{{ search_rm or '' }}" placeholder="Cari No. RM...">
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <label for="q_doctor" class="form-label">Nama Dokter</label>
+                    <input type="text" class="form-control" name="q_doctor" id="q_doctor" value="{{ search_doctor or '' }}" placeholder="Cari username...">
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <label class="form-label">Periode Kunjungan</label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" name="date_start" id="date_start" value="{{ search_start or '' }}" title="Tanggal Mulai">
+                        <span class="input-group-text">s/d</span>
+                        <input type="date" class="form-control" name="date_end" id="date_end" value="{{ search_end or '' }}" title="Tanggal Selesai">
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-2">
+                    <div class="d-flex">
+                        <button type="submit" class="btn btn-primary w-100 me-2">Cari</button>
+                        <a href="{{ url_for('reports') }}" class="btn btn-secondary w-100">Reset</a>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">Detail Laporan Kunjungan</h5>
+        <hr>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tanggal Kunjungan</th>
+                        <th>Nama Pasien</th>
+                        <th>No. RM</th>
+                        <th>Dokter</th>
+                        <th>Diagnosis (Assessment)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr>
+                        <td>{{ visit.visit_date.strftime('%d-%m-%Y %H:%M') }}</td>
+                        <td>{{ visit.patient.full_name }}</td>
+                        <td>{{ visit.patient.medical_record_number }}</td>
+                        <td>{{ visit.doctor.username }}</td>
+                        <td>{{ visit.soap_note.assessment or '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            {% if search_rm or search_doctor or search_start or search_end %}
+                                Data kunjungan tidak ditemukan sesuai filter pencarian.
+                            {% else %}
+                                Belum ada data kunjungan.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

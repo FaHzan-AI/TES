@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Riwayat Resep{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Riwayat Resep yang Diproses</h3>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('apoteker_riwayat') }}" class="mb-4">
+            <div class="input-group">
+                <input type="text" class="form-control" name="q" placeholder="Cari berdasarkan nama pasien atau dokter..." value="{{ search_query or '' }}">
+                <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i> Cari</button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Tgl. Proses</th>
+                        <th>Pasien</th>
+                        <th>Dokter</th>
+                        <th>Status</th>
+                        <th class="text-end">Biaya Obat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resep in riwayat_list %}
+                    <tr>
+                        <td>{{ resep.visit.visit_date.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ resep.visit.patient.full_name }}</td>
+                        <td>{{ resep.visit.doctor.username }}</td>
+                        <td>
+                            {% if resep.status == 'Selesai' %}
+                                <span class="badge bg-success">Selesai</span>
+                            {% elif resep.status == 'Menunggu Pembayaran' %}
+                                <span class="badge bg-warning text-dark">Menunggu Pembayaran</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ resep.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if resep.visit.pembayaran and resep.visit.pembayaran.biaya_obat is not none %}
+                                Rp {{ "{:,.0f}".format(resep.visit.pembayaran.biaya_obat) }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Tidak ada riwayat resep yang ditemukan.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if total_pages > 1 %}
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('apoteker_riwayat', page=prev_num, q=search_query) }}">Sebelumnya</a>
+                </li>
+                
+                <li class="page-item disabled">
+                    <span class="page-link">Halaman {{ page }} dari {{ total_pages }}</span>
+                </li>
+
+                <li class="page-item {% if not has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('apoteker_riwayat', page=next_num, q=search_query) }}">Berikutnya</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

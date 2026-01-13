@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Manajemen Konsultasi{% endblock %}
+{% block content %}
+<h3>Manajemen Permintaan Konsultasi Pasien</h3>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nama Pasien</th>
+                        <th>Ingin Bertemu Dokter</th>
+                        <th>Tanggal Pengajuan</th>
+                        <th>Keluhan</th>
+                        <th>Status</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in appointments %}
+                    <tr>
+                        <td>{{ app.patient.full_name }}</td>
+                        <td>{{ app.doctor.username }}</td>
+                        <td>{{ app.appointment_date.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ app.reason }}</td>
+                        <td>
+                            {% if app.status == 'Pending' %}
+                                <span class="badge bg-warning text-dark">Menunggu</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ app.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if app.status == 'Pending' %}
+                            <form action="{{ url_for('update_appointment_status', appointment_id=app.id) }}" method="POST" class="d-inline">
+                                <button type="submit" name="status" value="Approved" class="btn btn-sm btn-success">Setujui</button>
+                                <button type="submit" name="status" value="Rejected" class="btn btn-sm btn-danger">Tolak</button>
+                            </form>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">Tidak ada permintaan konsultasi yang menunggu persetujuan.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

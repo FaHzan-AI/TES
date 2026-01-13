@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Apoteker{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Daftar Resep Untuk Dikonfirmasi</h3>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Pasien</th>
+                        <th>Dokter</th>
+                        <th>Detail Resep</th>
+                        <th style="width: 200px;">Biaya Obat (Rp)</th>
+                        <th class="text-end" style="width: 150px;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resep in resep_list %}
+                    <tr>
+                        <td>
+                            <strong>{{ resep.visit.patient.full_name }}</strong><br>
+                            <small class="text-muted">{{ resep.visit.patient.age }} tahun</small>
+                        </td>
+                        <td>{{ resep.visit.doctor.username }}</td>
+                        <td><pre>{{ resep.detail_resep }}</pre></td>
+                        <form action="{{ url_for('konfirmasi_resep_apoteker', resep_id=resep.id) }}" method="POST">
+                            <td>
+                                <input type="text" name="biaya_obat_{{ resep.id }}" class="form-control" 
+                                       placeholder="Contoh: 75000" required inputmode="numeric">
+                            </td>
+                            <td class="text-end">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-check-circle-fill"></i> Konfirmasi Harga
+                                </button>
+                            </td>
+                        </form>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Tidak ada resep yang perlu dikonfirmasi.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

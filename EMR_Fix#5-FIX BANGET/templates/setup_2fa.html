@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Setup Autentikasi Dua Faktor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title text-center">Setup Autentikasi Dua Faktor (2FA)</h3>
+                <hr>
+                <ol class="list-group list-group-numbered">
+                    <li class="list-group-item">
+                        Buka aplikasi authenticator Anda (misalnya: Google Authenticator, Authy).
+                    </li>
+                    <li class="list-group-item">
+                        Pilih untuk menambah akun baru, lalu pindai (scan) QR Code di bawah ini.
+                        <div class="text-center my-3">
+                            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code 2FA">
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <p class="mb-2">
+                            <strong>Tidak bisa memindai QR?</strong> Gunakan opsi "Enter a setup key" atau "Manual entry" di aplikasi Anda, lalu masukkan kode di bawah ini:
+                        </p>
+                        <div class="input-group">
+                            <input type="text" class="form-control" value="{{ secret }}" readonly id="secretKey">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copySecret()">
+                                <i class="bi bi-clipboard-fill"></i> Salin
+                            </button>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        Setelah akun ditambahkan (baik via QR atau manual), aplikasi akan memberikan kode 6 digit. Masukkan kode tersebut di bawah ini untuk verifikasi.
+                    </li>
+                </ol>
+                
+                <form method="POST" action="{{ url_for('setup_2fa') }}" class="mt-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                        <input type="text" class="form-control" name="token" placeholder="Masukkan 6 digit kode verifikasi" required pattern="\d{6}" maxlength="6" inputmode="numeric">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Verifikasi & Aktifkan</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copySecret() {
+        var copyText = document.getElementById("secretKey");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+        
+        try {
+            document.execCommand("copy");
+            alert("Kode Rahasia disalin: " + copyText.value);
+        } catch (err) {
+            alert("Gagal menyalin. Silakan salin secara manual.");
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Akun Tidak Aktif{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger" role="alert">
+  <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> Akun Dinonaktifkan</h4>
+  <p>Akun Anda saat ini berstatus tidak aktif. Anda tidak dapat mengakses fitur lain selain menghubungi administrator.</p>
+  <hr>
+  <p class="mb-0">Jika Anda merasa ini adalah kesalahan atau ingin mengaktifkan kembali akun Anda, silakan kirim pesan ke Admin melalui tombol di bawah atau menu sidebar.</p>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body text-center">
+        <h5 class="card-title">Hubungi Administrator</h5>
+        <p class="card-text">Klik tombol di bawah untuk mengirim pesan terkait status akun Anda.</p>
+        <a href="{{ url_for('hubungi_admin') }}" class="btn btn-primary">
+            <i class="bi bi-envelope-fill"></i> Hubungi Admin Sekarang
+        </a>
+    </div>
+</div>
+{% endblock %}

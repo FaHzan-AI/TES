@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% block title %}Detail Pasien{% endblock %}
+{% block content %}
+<a href="{{ url_for('dashboard') }}" class="btn btn-secondary mb-3"><i class="bi bi-arrow-left"></i> Kembali</a>
+<h3>Detail Pasien</h3>
+<a href="{{ url_for('export_patient_to_pdf', patient_id=patient.id) }}" 
+   class="btn btn-danger">
+    <i class="bi bi-file-pdf-fill"></i> Export ke PDF
+</a>
+
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">{{ patient.full_name }}</h5>
+        <ul class="list-unstyled mb-0">
+            <li><strong>No. RM:</strong> {{ patient.medical_record_number }}</li>
+            <li><strong>Tgl Lahir:</strong> 
+                {% if patient.date_of_birth %}
+                    {{ patient.date_of_birth.strftime('%d-%m-%Y') }}
+                {% else %}
+                    <span class="text-danger">Data Hilang</span>
+                {% endif %}
+            </li>
+            <li><strong>Alamat:</strong> {{ patient.address }}</li>
+            {# --- TAMBAHKAN DUA BARIS DI BAWAH INI --- #}
+            {% if patient.user %} {# Cek jika patient terhubung ke user #}
+            <li><strong>Kontak:</strong> {{ patient.user.contact or '-' }}</li>
+            <li><strong>Email:</strong> {{ patient.user.email or '-' }}</li>
+            {% endif %}
+            {# --- BATAS TAMBAHAN --- #}
+        </ul>
+    </div>
+</div>
+
+<hr>
+
+<!-- TAMBAHKAN SETELAH CARD DATA PASIEN (setelah baris 15-an) -->
+
+<!-- Card Foto Pasien -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-images"></i> Foto Pasien</h5>
+        <a href="{{ url_for('upload_patient_photos', patient_id=patient.id) }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-upload"></i> Upload Foto
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <h6>Foto Profil</h6>
+                {% if patient.profile_photo %}
+                <img src="{{ url_for('static', filename='uploads/' + patient.profile_photo) }}" 
+                     alt="Foto Profil" class="img-thumbnail" style="max-width: 100%;">
+                {% else %}
+                <p class="text-muted">Belum ada foto profil</p>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h6>Foto KTP</h6>
+                {% if patient.ktp_photo %}
+                <img src="{{ url_for('static', filename='uploads/' + patient.ktp_photo) }}" 
+                     alt="Foto KTP" class="img-thumbnail" style="max-width: 100%;">
+                {% else %}
+                <p class="text-muted">Belum ada foto KTP</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card Dokumen Medis -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-medical"></i> Dokumen Medis</h5>
+    </div>
+    <div class="card-body">
+        <!-- Form Upload Dokumen -->
+        {% if current_user.role in ['admin', 'dokter'] %}
+        <form method="POST" action="{{ url_for('upload_medical_document', patient_id=patient.id) }}" 
+              enctype="multipart/form-data" class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <select name="document_type" class="form-select" required>
+                        <option value="">Pilih Jenis Dokumen</option>
+                        <option value="lab_result">Hasil Lab</option>
+                        <option value="xray">X-Ray</option>
+                        <option value="scan">CT Scan / MRI</option>
+                        <option value="other">Lainnya</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="file" name="document_file" class="form-control" required accept=".png,.jpg,.jpeg,.pdf">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="description" class="form-control" placeholder="Keterangan (opsional)">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">
+                <i class="bi bi-upload"></i> Upload Dokumen
+            </button>
+        </form>
+        {% endif %}
+        
+        <!-- Daftar Dokumen -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Jenis</th>
+                        <th>Nama File</th>
+                        <th>Ukuran</th>
+                        <th>Diupload Oleh</th>
+                        <th>Tanggal</th>
+                        <th>Keterangan</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in patient.documents %}
+                    <tr>
+                        <td>
+                            {% if doc.document_type == 'lab_result' %}
+                                <span class="badge bg-info">Hasil Lab</span>
+                            {% elif doc.document_type == 'xray' %}
+                                <span class="badge bg-warning text-dark">X-Ray</span>
+                            {% elif doc.document_type == 'scan' %}
+                                <span class="badge bg-primary">Scan</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Lainnya</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ doc.file_name }}</td>
+                        <td>{{ "%.2f"|format(doc.file_size / 1024) }} KB</td>
+                        <td>{{ doc.uploader.username }}</td>
+                        <td>{{ doc.upload_date.strftime('%d-%m-%Y') }}</td>
+                        <td>{{ doc.description or '-' }}</td>
+                        <td class="text-end">
+                            <a href="{{ url_for('static', filename='uploads/' + doc.file_path) }}" 
+                               target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Lihat
+                            </a>
+                            {% if current_user.role in ['admin', 'dokter'] %}
+                            <form action="{{ url_for('delete_medical_document', document_id=doc.id) }}" 
+                                  method="POST" class="d-inline" 
+                                  onsubmit="return confirm('Hapus dokumen ini?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">Belum ada dokumen medis</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<h4>Riwayat Rekam Medis (SOAP)</h4>
+
+{% if current_user.role == 'dokter' %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-header fw-bold">
+        Form Tambah Kunjungan / Rekam Medis Baru
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('add_visit', patient_id=patient.id) }}" method="POST">
+            <input type="hidden" name="appointment_id" value="{{ appointment_id or '' }}">
+
+            <div class="mb-3">
+                <label class="form-label">S (Subjective)</label>
+                <textarea name="subjective" class="form-control" rows="2" placeholder="Masukkan keluhan pasien..."></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">O (Objective)</label>
+                <textarea name="objective" class="form-control" rows="2" placeholder="Masukkan hasil pemeriksaan fisik..."></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">A (Assessment)</label>
+                <textarea name="assessment" class="form-control" rows="2" placeholder="Masukkan diagnosis..."></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">P (Plan)</label>
+                <textarea name="plan" class="form-control" rows="2" placeholder="Masukkan rencana tindakan atau anjuran..."></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label fw-bold text-success">R/ (Resep Obat)</label>
+                <textarea name="detail_resep" class="form-control" rows="4" placeholder="Contoh:&#10;1. Paracetamol 500mg 3x1 sesudah makan&#10;2. Amoxicillin 500mg 3x1 habiskan&#10;3. Vitamin C 1x1"></textarea>
+                <div class="form-text">
+                    Kosongkan jika tidak ada resep. Mengisi resep akan meneruskannya ke apoteker.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="biaya_konsultasi" class="form-label fw-bold text-primary">Biaya Konsultasi (Rp)</label>
+                <input type="text" name="biaya_konsultasi" id="biaya_konsultasi" class="form-control" 
+                       placeholder="Contoh: 150000" required inputmode="numeric">
+            </div>
+            
+            <button type="submit" class="btn btn-primary"><i class="bi bi-save-fill"></i> Simpan & Selesaikan Konsultasi</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% for visit in patient.visits|reverse %}
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between">
+        <span>Kunjungan: <strong>{{ visit.visit_date.strftime('%d %B %Y, %H:%M') }}</strong></span>
+        <span>Dokter: <strong>{{ visit.doctor.username }}</strong></span>
+    </div>
+    <div class="card-body">
+        <p><strong>Subjective:</strong> {{ visit.soap_note.subjective or '-' }}</p>
+        <p><strong>Objective:</strong> {{ visit.soap_note.objective or '-' }}</p>
+        <p><strong>Assessment:</strong> {{ visit.soap_note.assessment or '-' }}</p>
+        <p><strong>Plan:</strong> {{ visit.soap_note.plan or '-' }}</p>
+        
+        {% if visit.resep_obat %}
+        <hr>
+        <p class="fw-bold text-success">Resep Obat:</p>
+        <pre class="bg-light p-2 rounded">{{ visit.resep_obat.detail_resep }}</pre>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    Belum ada riwayat kunjungan untuk pasien ini.
+</div>
+{% endfor %}
+{% endblock %}

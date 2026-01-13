@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Akun Tidak Aktif{% endblock %}
+
+{% block sidebar %}
+    {% if current_user.role in ['dokter', 'apoteker'] and current_user.verification_status != 'aktif' %}
+        {# Tampilkan hanya menu terbatas #}
+        <li><a href="{{ url_for('profile') }}" class="nav-link">Profil</a></li>
+        <li><a href="{{ url_for('hubungi_admin') }}" class="nav-link">Hubungi Admin</a></li>
+    {% else %}
+        {# Tampilkan menu lengkap seperti biasa #}
+        <li><a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a></li>
+        <li><a href="{{ url_for('data_pasien') }}" class="nav-link">Data Pasien</a></li>
+        <li><a href="{{ url_for('resep') }}" class="nav-link">Resep</a></li>
+        <li><a href="{{ url_for('laporan') }}" class="nav-link">Laporan</a></li>
+        <li><a href="{{ url_for('profile') }}" class="nav-link">Profil</a></li>
+    {% endif %}
+{% endblock %}

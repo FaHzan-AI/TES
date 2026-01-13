@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Buat Pengguna Baru{% endblock %}
+{% block content %}
+<h3>Buat Akun Internal Baru (Admin/Dokter)</h3>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('create_user_by_admin') }}">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                <label for="username">Username</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                <label for="password">Password</label>
+                <div class="form-text">
+                    Minimal 8 karakter, dengan huruf besar, kecil, angka, & simbol.
+                </div>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                <label for="email">Email (Wajib untuk login/reset)</label>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <select class="form-select" id="role" name="role">
+                    <option value="dokter">Dokter</option>
+                    <option value="admin">Admin</option>
+                    <option value="apoteker">Apoteker</option>
+                </select>
+                <label for="role">Peran Akun</label>
+            </div>
+            <hr>
+            <a href="{{ url_for('manage_users') }}" class="btn btn-secondary">Batal</a>
+            <button type="submit" class="btn btn-primary">Buat Akun</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

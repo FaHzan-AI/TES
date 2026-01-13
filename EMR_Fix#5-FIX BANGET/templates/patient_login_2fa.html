@@ -1,0 +1,48 @@
+{% extends 'base_blank.html' %}
+{% block title %}Verifikasi 2FA Pasien{% endblock %}
+
+{% block form_title %}
+    <i class="bi bi-shield-check text-success"></i> Verifikasi Pasien 2FA
+{% endblock %}
+
+{% block form_content %}
+<div class="alert alert-success small text-center">
+    <i class="bi bi-lock-fill"></i> Masukkan kode 6 digit dari aplikasi authenticator Anda
+</div>
+
+<form method="POST" action="{{ url_for('patient_login_2fa') }}">
+    <div class="form-floating mb-3">
+        <input type="text" class="form-control text-center fs-4 tracking-widest" 
+               id="token" name="token" 
+               placeholder="000000" required 
+               pattern="\d{6}" maxlength="6" inputmode="numeric"
+               autocomplete="one-time-code" autofocus>
+        <label for="token">Kode 6-Digit</label>
+    </div>
+    
+    <div class="d-grid">
+        <button type="submit" class="btn btn-success btn-lg">
+            <i class="bi bi-check-circle-fill"></i> Verifikasi & Login
+        </button>
+    </div>
+</form>
+
+<p class="text-center mt-3 small">
+    <a href="{{ url_for('patient_login') }}" class="text-decoration-none">
+        <i class="bi bi-arrow-left-circle"></i> Kembali ke Login
+    </a>
+</p>
+
+<style>
+.tracking-widest {
+    letter-spacing: 0.5rem;
+    font-weight: bold;
+}
+
+input[type="text"]#token::-webkit-inner-spin-button,
+input[type="text"]#token::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+</style>
+{% endblock %}

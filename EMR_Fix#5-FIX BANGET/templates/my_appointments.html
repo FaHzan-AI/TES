@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Riwayat Konsultasi Saya{% endblock %}
+{% block content %}
+<h3>Riwayat Konsultasi Saya</h3>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Dokter</th>
+                        <th>Tanggal Konsultasi</th>
+                        <th>Status</th>
+                        <th class="text-end">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in appointments %}
+                    <tr>
+                        <td>{{ app.doctor.username }}</td>
+                        <td>{{ app.appointment_date.strftime('%d-%m-%Y') }}</td>
+                        <td>
+                            {% if app.status == 'Pending' %}
+                                <span class="badge bg-warning text-dark">Menunggu Persetujuan Admin</span>
+
+                            {% elif app.status == 'Approved' %}
+                                <span class="badge bg-info">Disetujui (Menunggu Sesi Konsultasi)</span>
+
+                            {% elif app.status == 'Rejected' %}
+                                <span class="badge bg-danger">Ditolak</span>
+
+                            {% elif app.status == 'Finished' %}
+                                
+                                {% if app.patient_confirmed_finished %}
+                                    <span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Selesai & Dikonfirmasi</span>
+                                
+                                {% else %}
+                                    {% if app.visit and app.visit.resep_obat %}
+                                        {% if app.visit.resep_obat.status == 'Menunggu Konfirmasi Apoteker' %}
+                                            <span class="badge bg-primary">Selesai (Menunggu Resep di Apotek)</span>
+                                        {% elif app.visit.resep_obat.status == 'Menunggu Pembayaran' %}
+                                            <span class="badge bg-warning text-dark">Selesai (Menunggu Pembayaran Obat)</span>
+                                        {% elif app.visit.resep_obat.status == 'Selesai' %}
+                                             <span class="badge bg-info">Selesai (Obat Siap Diambil)</span>
+                                        {% else %}
+                                            <span class="badge bg-primary">Selesai oleh Dokter</span>
+                                        {% endif %}
+                                    
+                                    {% else %}
+                                        <span class="badge bg-primary">Selesai (Hanya Konsultasi)</span>
+                                    {% endif %}
+                                    
+                                {% endif %}
+
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if app.status == 'Finished' and not app.patient_confirmed_finished %}
+                                
+                                {% if app.visit and app.visit.pembayaran %}
+                                    <a href="{{ url_for('lihat_pembayaran') }}" class="btn btn-sm btn-warning">Lihat Tagihan</a>
+                                {% endif %}
+
+                                {% if app.visit and app.visit.resep_obat and app.visit.resep_obat.status != 'Dibatalkan Pasien' %}
+                                    
+                                    <form action="{{ url_for('confirm_finished_no_meds', appointment_id=app.id) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('Anda yakin ingin menyelesaikan sesi ini TANPA mengambil resep obat? Biaya obat akan dibatalkan.');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            Selesai (Tanpa Obat)
+                                        </button>
+                                    </form>
+                                    
+                                    <form action="{{ url_for('confirm_finished', appointment_id=app.id) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin sesi konsultasi telah selesai dan obat telah diterima?');">
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            Selesai (Ambil Obat)
+                                        </button>
+                                    </form>
+
+                                {% else %}
+
+                                    <form action="{{ url_for('confirm_finished', appointment_id=app.id) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('Apakah Anda yakin sesi konsultasi telah selesai?');">
+                                        <button type="submit" class="btn btn-sm btn-primary">Konfirmasi Selesai</button>
+                                    </form>
+
+                                {% endif %}
+                            
+                            {% elif app.patient_confirmed_finished %}
+                                {% if app.visit and app.visit.pembayaran %}
+                                    <a href="{{ url_for('lihat_pembayaran') }}" class="btn btn-sm btn-outline-secondary">Lihat Tagihan</a>
+                                {% else %}
+                                     <span class="text-muted">-</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">Anda belum memiliki riwayat konsultasi.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

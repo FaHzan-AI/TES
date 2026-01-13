@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+{% block title %}Manajemen Jadwal Praktik{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- KOLOM KIRI: Form Ajukan Jadwal -->
+    <div class="col-lg-5 col-xl-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Ajukan Jadwal Praktik Baru</h5>
+                <hr>
+                <form action="{{ url_for('doctor_schedule') }}" method="POST" id="scheduleForm">
+                    <!-- Tanggal Praktik -->
+                    <div class="mb-3">
+                        <label for="schedule_date" class="form-label">Tanggal Praktik</label>
+                        <input type="date" name="schedule_date" id="schedule_date" class="form-control" required>
+                    </div>
+                    
+                    <!-- Jam Mulai Slot Pertama -->
+                    <div class="mb-3">
+                        <label for="first_slot_start" class="form-label">Jam Mulai Slot Pertama</label>
+                        <input type="time" name="first_slot_start" id="first_slot_start" class="form-control" required>
+                    </div>
+                    
+                    <!-- Durasi per Konsultasi -->
+                    <div class="mb-3">
+                        <label for="consultation_duration" class="form-label">Durasi per Konsultasi (menit)</label>
+                        <select name="consultation_duration" id="consultation_duration" class="form-select" required>
+                            <option value="30">30 menit</option>
+                            <option value="60" selected>60 menit (1 jam)</option>
+                            <option value="90">90 menit (1.5 jam)</option>
+                            <option value="120">120 menit (2 jam)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Jeda Antar Slot -->
+                    <div class="mb-3">
+                        <label for="break_duration" class="form-label">Jeda/Istirahat Antar Slot (menit)</label>
+                        <select name="break_duration" id="break_duration" class="form-select" required>
+                            <option value="0" selected>Tanpa Jeda (Langsung)</option>
+                            <option value="15">15 menit</option>
+                            <option value="30">30 menit</option>
+                            <option value="60">60 menit (1 jam)</option>
+                            <option value="120">120 menit (2 jam)</option>
+                            <option value="180">180 menit (3 jam)</option>
+                            <option value="custom">Custom (Atur Sendiri)</option>
+                        </select>
+                        <div class="form-text">Waktu istirahat antara slot konsultasi</div>
+                    </div>
+
+                    <!-- Custom Break Duration -->
+                    <div class="mb-3" id="customBreakDiv" style="display: none;">
+                        <label for="custom_break_minutes" class="form-label">Jeda Custom (menit)</label>
+                        <input type="number" name="custom_break_minutes" id="custom_break_minutes" 
+                               class="form-control" min="0" max="720" placeholder="Contoh: 45">
+                    </div>
+
+                    <!-- Waktu Istirahat Tetap -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-primary">
+                            <i class="bi bi-clock-history"></i> Waktu Istirahat Tetap (Opsional)
+                        </label>
+                        <div class="form-text mb-2">Slot konsultasi akan otomatis melewati waktu istirahat ini</div>
+                        
+                        <!-- Break Time 1 -->
+                        <div class="card mb-2">
+                            <div class="card-body p-2">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="enable_break1" name="enable_break1">
+                                    <label class="form-check-label fw-bold" for="enable_break1">
+                                        Istirahat 1
+                                    </label>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="time" name="break1_start" id="break1_start" class="form-control form-control-sm" placeholder="Mulai">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="time" name="break1_end" id="break1_end" class="form-control form-control-sm" placeholder="Selesai">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Break Time 2 -->
+                        <div class="card mb-2">
+                            <div class="card-body p-2">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="enable_break2" name="enable_break2">
+                                    <label class="form-check-label fw-bold" for="enable_break2">
+                                        Istirahat 2
+                                    </label>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="time" name="break2_start" id="break2_start" class="form-control form-control-sm" placeholder="Mulai">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="time" name="break2_end" id="break2_end" class="form-control form-control-sm" placeholder="Selesai">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Break Time 3 -->
+                        <div class="card">
+                            <div class="card-body p-2">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="enable_break3" name="enable_break3">
+                                    <label class="form-check-label fw-bold" for="enable_break3">
+                                        Istirahat 3
+                                    </label>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="time" name="break3_start" id="break3_start" class="form-control form-control-sm" placeholder="Mulai">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="time" name="break3_end" id="break3_end" class="form-control form-control-sm" placeholder="Selesai">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                        
+                    <!-- Jumlah Slot -->
+                    <div class="mb-3">
+                        <label for="max_slots" class="form-label">Jumlah Slot Konsultasi</label>
+                        <input type="number" name="max_slots" id="max_slots" class="form-control" 
+                               min="1" max="20" value="5" required>
+                        <div class="form-text">Jumlah pasien yang bisa dilayani</div>
+                    </div>
+                    
+                    <!-- Preview Slot -->
+                    <div class="mb-3">
+                        <label class="form-label">Preview Slot yang Akan Dibuat:</label>
+                        <div id="slotPreview" class="alert alert-info small">
+                            Pilih jam dan durasi untuk melihat preview slot.
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Ajukan Jadwal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- KOLOM KANAN: Riwayat Pengajuan Jadwal -->
+    <div class="col-lg-7 col-xl-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Riwayat Pengajuan Jadwal Anda</h5>
+                <hr>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Jam Praktik</th>
+                                <th>Status Verifikasi</th>
+                                <th class="text-end">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for group in schedule_groups.values()|sort(attribute='date', reverse=True) %}
+                            <tr>
+                                <td>{{ group.date }}</td>
+                                <td>
+                                    {{ group.slots[0].start_time.strftime('%H:%M') }} - {{ group.slots[-1].end_time.strftime('%H:%M') }}
+                                    <span class="badge bg-light text-dark">{{ group.slots|length }} slot</span>
+                                </td>
+                                <td>
+                                    {% if group.verification_status == 'Pending' %}
+                                        <span class="badge bg-warning text-dark">Menunggu Persetujuan</span>
+                                    {% elif group.verification_status == 'Approved' %}
+                                        <span class="badge bg-success">Disetujui</span>
+                                    {% elif group.verification_status == 'Menunggu Penyelesaian' %}
+                                        <span class="badge bg-info text-dark">Menunggu Konfirmasi Selesai</span>
+                                    {% elif group.verification_status == 'Selesai' %}
+                                         <span class="badge bg-secondary">Selesai</span>
+                                    {% elif group.verification_status == 'Rejected' %}
+                                         <span class="badge bg-danger">Ditolak</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if group.verification_status == 'Approved' %}
+                                        <form action="{{ url_for('request_finish_schedule', request_id=group.slots[0].schedule_request_id) }}" method="POST" onsubmit="return confirm('Anda yakin ingin MENGAJUKAN PENYELESAIAN jadwal ini? Admin akan memverifikasinya.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                Ajukan Selesai
+                                            </button>
+                                        </form>
+                                    {% elif group.verification_status == 'Menunggu Penyelesaian' %}
+                                         <span class="text-muted small fst-italic">Menunggu...</span>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">Belum ada pengajuan jadwal.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-update preview slot
+document.addEventListener('DOMContentLoaded', function() {
+    const firstSlotStartInput = document.getElementById('first_slot_start');
+    const durationInput = document.getElementById('consultation_duration');
+    const breakDurationInput = document.getElementById('break_duration');
+    const customBreakInput = document.getElementById('custom_break_minutes');
+    const maxSlotsInput = document.getElementById('max_slots');
+    const previewDiv = document.getElementById('slotPreview');
+    
+    // Toggle custom break input
+    breakDurationInput.addEventListener('change', function() {
+        const customDiv = document.getElementById('customBreakDiv');
+        
+        if (this.value === 'custom') {
+            customDiv.style.display = 'block';
+            customBreakInput.required = true;
+        } else {
+            customDiv.style.display = 'none';
+            customBreakInput.required = false;
+        }
+        
+        updatePreview();
+    });
+    
+    function updatePreview() {
+        const firstSlotStart = firstSlotStartInput.value;
+        const duration = parseInt(durationInput.value);
+        let breakDuration = 0;
+        
+        // Get break duration
+        if (breakDurationInput.value === 'custom') {
+            breakDuration = parseInt(customBreakInput.value) || 0;
+        } else {
+            breakDuration = parseInt(breakDurationInput.value);
+        }
+        
+        const maxSlots = parseInt(maxSlotsInput.value);
+        
+        if (!firstSlotStart || !duration || !maxSlots) {
+            previewDiv.innerHTML = 'Pilih jam dan durasi untuk melihat preview slot.';
+            previewDiv.className = 'alert alert-info small';
+            return;
+        }
+        
+        // Parse time
+        const [startHour, startMinute] = firstSlotStart.split(':').map(Number);
+        let currentMinutes = startHour * 60 + startMinute;
+        
+        // **[PERBAIKAN]** Ambil data waktu istirahat tetap yang AKTIF
+        const breakRanges = [];
+        
+        // Break 1
+        if (document.getElementById('enable_break1').checked) {
+            const break1Start = document.getElementById('break1_start').value;
+            const break1End = document.getElementById('break1_end').value;
+            if (break1Start && break1End) {
+                const [h1, m1] = break1Start.split(':').map(Number);
+                const [h2, m2] = break1End.split(':').map(Number);
+                breakRanges.push({ start: h1 * 60 + m1, end: h2 * 60 + m2, label: 'Istirahat 1' });
+            }
+        }
+        
+        // Break 2
+        if (document.getElementById('enable_break2').checked) {
+            const break2Start = document.getElementById('break2_start').value;
+            const break2End = document.getElementById('break2_end').value;
+            if (break2Start && break2End) {
+                const [h1, m1] = break2Start.split(':').map(Number);
+                const [h2, m2] = break2End.split(':').map(Number);
+                breakRanges.push({ start: h1 * 60 + m1, end: h2 * 60 + m2, label: 'Istirahat 2' });
+            }
+        }
+        
+        // Break 3
+        if (document.getElementById('enable_break3').checked) {
+            const break3Start = document.getElementById('break3_start').value;
+            const break3End = document.getElementById('break3_end').value;
+            if (break3Start && break3End) {
+                const [h1, m1] = break3Start.split(':').map(Number);
+                const [h2, m2] = break3End.split(':').map(Number);
+                breakRanges.push({ start: h1 * 60 + m1, end: h2 * 60 + m2, label: 'Istirahat 3' });
+            }
+        }
+        
+        // Generate preview
+        let html = '<strong>Slot yang akan dibuat:</strong><ol class="mb-0 mt-2">';
+        let totalDuration = 0;
+        let slotsCreated = 0;
+        let safetyCounter = 0;
+        const maxAttempts = 200;
+        
+        while (slotsCreated < maxSlots && safetyCounter < maxAttempts) {
+            safetyCounter++;
+            
+            // Hitung waktu mulai dan selesai slot ini
+            const slotStartMinutes = currentMinutes;
+            const slotEndMinutes = currentMinutes + duration;
+            
+            // **[PERBAIKAN]** Cek apakah slot TIDAK BENTROK dengan break time
+            let isConflict = false;
+            let conflictLabel = '';
+            
+            for (const breakRange of breakRanges) {
+                // Slot bentrok jika:
+                // 1. Slot mulai di tengah break time
+                // 2. Slot selesai di tengah break time
+                // 3. Slot "menutupi" break time (mulai sebelum, selesai sesudah)
+                if ((breakRange.start <= slotStartMinutes && slotStartMinutes < breakRange.end) ||
+                    (breakRange.start < slotEndMinutes && slotEndMinutes <= breakRange.end) ||
+                    (slotStartMinutes <= breakRange.start && slotEndMinutes >= breakRange.end)) {
+                    isConflict = true;
+                    conflictLabel = breakRange.label;
+                    // Skip ke akhir break time ini
+                    currentMinutes = breakRange.end + breakDuration;
+                    break;
+                }
+            }
+            
+            if (isConflict) {
+                // Tampilkan info konflik
+                html += `<li class="text-warning"><em>⏩ Melewati ${conflictLabel}</em></li>`;
+                continue; // Coba slot berikutnya
+            }
+            
+            // Konversi kembali ke datetime
+            const slotStartHour = Math.floor(slotStartMinutes / 60);
+            const slotStartMin = slotStartMinutes % 60;
+            const slotStart = `${String(slotStartHour).padStart(2, '0')}:${String(slotStartMin).padStart(2, '0')}`;
+            
+            const slotEndHour = Math.floor(slotEndMinutes / 60);
+            const slotEndMin = slotEndMinutes % 60;
+            const slotEnd = `${String(slotEndHour).padStart(2, '0')}:${String(slotEndMin).padStart(2, '0')}`;
+            
+            html += `<li><strong>${slotStart} - ${slotEnd}</strong>`;
+            
+            // Tampilkan info jeda jika ada dan bukan slot terakhir
+            if (breakDuration > 0 && slotsCreated < maxSlots - 1) {
+                const nextSlotStartMinutes = slotEndMinutes + breakDuration;
+                const nextSlotHour = Math.floor(nextSlotStartMinutes / 60);
+                const nextSlotMin = nextSlotStartMinutes % 60;
+                const nextSlotStart = `${String(nextSlotHour).padStart(2, '0')}:${String(nextSlotMin).padStart(2, '0')}`;
+                
+                const breakHours = Math.floor(breakDuration / 60);
+                const breakMins = breakDuration % 60;
+                html += `<br><small class="text-muted">→ Jeda ${breakHours > 0 ? breakHours + ' jam ' : ''}${breakMins} menit, slot berikutnya mulai: ${nextSlotStart}</small>`;
+            }
+            
+            html += '</li>';
+            
+            // Update currentMinutes untuk slot berikutnya (tambah durasi konsultasi + jeda)
+            currentMinutes = slotEndMinutes + breakDuration;
+            totalDuration += duration;
+            slotsCreated++;
+        }
+        
+        html += '</ol>';
+        
+        if (slotsCreated < maxSlots) {
+            html += `<div class="alert alert-warning small mt-2 mb-0">⚠️ Hanya ${slotsCreated} slot yang dapat dibuat (dari ${maxSlots} yang diminta) karena konflik dengan waktu istirahat.</div>`;
+        }
+        
+        // Info total waktu
+        const totalHours = Math.floor(totalDuration / 60);
+        const totalMins = totalDuration % 60;
+        html += `<div class="mt-2"><small class="text-primary"><strong>Total waktu konsultasi:</strong> ${totalHours > 0 ? totalHours + ' jam ' : ''}${totalMins} menit</small></div>`;
+        
+        // Info total jeda
+        if (breakDuration > 0 && slotsCreated > 1) {
+            const totalBreak = breakDuration * (slotsCreated - 1);
+            const breakHours = Math.floor(totalBreak / 60);
+            const breakMins = totalBreak % 60;
+            html += `<div><small class="text-warning"><strong>Total waktu jeda:</strong> ${breakHours > 0 ? breakHours + ' jam ' : ''}${breakMins} menit</small></div>`;
+        }
+        
+        previewDiv.innerHTML = html;
+        previewDiv.className = 'alert alert-success small';
+    }
+    
+    // Event listeners untuk semua input
+    firstSlotStartInput.addEventListener('change', updatePreview);
+    firstSlotStartInput.addEventListener('input', updatePreview);
+    
+    durationInput.addEventListener('change', updatePreview);
+    
+    breakDurationInput.addEventListener('change', updatePreview);
+    
+    customBreakInput.addEventListener('input', updatePreview);
+    customBreakInput.addEventListener('change', updatePreview);
+    
+    maxSlotsInput.addEventListener('input', updatePreview);
+    maxSlotsInput.addEventListener('change', updatePreview);
+    
+    // Event listeners untuk checkbox dan input waktu istirahat tetap
+    ['enable_break1', 'enable_break2', 'enable_break3'].forEach(id => {
+        const checkbox = document.getElementById(id);
+        checkbox.addEventListener('change', updatePreview);
+    });
+    
+    ['break1_start', 'break1_end', 'break2_start', 'break2_end', 'break3_start', 'break3_end'].forEach(id => {
+        const input = document.getElementById(id);
+        input.addEventListener('change', updatePreview);
+        input.addEventListener('input', updatePreview);
+    });
+    
+    // Initial update
+    updatePreview();
+});
+</script>
+{% endblock %}

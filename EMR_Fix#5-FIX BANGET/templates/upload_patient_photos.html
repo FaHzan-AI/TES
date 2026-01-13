@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% block title %}Upload Foto Pasien{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title">Upload Foto - {{ patient.full_name }}</h3>
+                <p class="text-muted">No. RM: {{ patient.medical_record_number }}</p>
+                <hr>
+                
+                <form method="POST" enctype="multipart/form-data">
+                    <!-- Foto Profil -->
+                    <div class="mb-4">
+                        <h5><i class="bi bi-person-circle text-primary"></i> Foto Profil</h5>
+                        
+                        <div class="text-center mb-3">
+                            {% if patient.profile_photo %}
+                            <p class="text-muted small mb-2">Foto saat ini:</p>
+                            <img id="current_profile"
+                                 src="{{ url_for('static', filename='uploads/' + patient.profile_photo) }}" 
+                                 alt="Foto Profil" 
+                                 class="img-thumbnail" 
+                                 style="max-width: 300px; max-height: 300px; object-fit: cover;"
+                                 onerror="this.style.display='none'; document.getElementById('profile_error').style.display='block';">
+                            <div id="profile_error" style="display:none;" class="alert alert-danger mt-2">
+                                <i class="bi bi-exclamation-triangle"></i> Gambar tidak dapat dimuat
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Belum ada foto profil yang diupload
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="profile_photo" class="form-label">Pilih Foto Profil Baru</label>
+                            <input type="file" class="form-control" id="profile_photo" name="profile_photo" 
+                                   accept="image/png,image/jpg,image/jpeg,image/gif">
+                            <div class="form-text">Format: PNG, JPG, JPEG, GIF (Max 5MB)</div>
+                        </div>
+                        
+                        <!-- Preview BARU -->
+                        <div id="profile_preview_container" class="text-center mb-3" style="display: none;">
+                            <div class="alert alert-success">
+                                <strong><i class="bi bi-eye-fill"></i> Preview Foto Baru:</strong>
+                            </div>
+                            <img id="profile_preview" src="" alt="Preview" 
+                                 class="img-thumbnail border-primary border-3" 
+                                 style="max-width: 300px; max-height: 300px; object-fit: cover;">
+                            <p class="text-success mt-2 fw-bold">
+                                <i class="bi bi-check-circle-fill"></i> Foto siap diupload!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Foto KTP -->
+                    <div class="mb-4">
+                        <h5><i class="bi bi-card-heading text-success"></i> Foto KTP</h5>
+                        
+                        <div class="text-center mb-3">
+                            {% if patient.ktp_photo %}
+                            <p class="text-muted small mb-2">Foto saat ini:</p>
+                            <img id="current_ktp"
+                                 src="{{ url_for('static', filename='uploads/' + patient.ktp_photo) }}" 
+                                 alt="Foto KTP" 
+                                 class="img-thumbnail" 
+                                 style="max-width: 500px; max-height: 300px; object-fit: cover;"
+                                 onerror="this.style.display='none'; document.getElementById('ktp_error').style.display='block';">
+                            <div id="ktp_error" style="display:none;" class="alert alert-danger mt-2">
+                                <i class="bi bi-exclamation-triangle"></i> Gambar tidak dapat dimuat
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Belum ada foto KTP yang diupload
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="ktp_photo" class="form-label">Pilih Foto KTP Baru</label>
+                            <input type="file" class="form-control" id="ktp_photo" name="ktp_photo" 
+                                   accept="image/png,image/jpg,image/jpeg">
+                            <div class="form-text">Format: PNG, JPG, JPEG (Max 5MB)</div>
+                        </div>
+                        
+                        <!-- Preview BARU -->
+                        <div id="ktp_preview_container" class="text-center mb-3" style="display: none;">
+                            <div class="alert alert-success">
+                                <strong><i class="bi bi-eye-fill"></i> Preview Foto Baru:</strong>
+                            </div>
+                            <img id="ktp_preview" src="" alt="Preview" 
+                                 class="img-thumbnail border-success border-3" 
+                                 style="max-width: 500px; max-height: 300px; object-fit: cover;">
+                            <p class="text-success mt-2 fw-bold">
+                                <i class="bi bi-check-circle-fill"></i> Foto siap diupload!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        {% if current_user.role == 'pasien' %}
+                            <a href="{{ url_for('profile') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Kembali
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('patient_detail', patient_id=patient.id) }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Kembali
+                            </a>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-upload"></i> Upload Foto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Preview foto profil
+document.getElementById('profile_photo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const previewContainer = document.getElementById('profile_preview_container');
+    const previewImg = document.getElementById('profile_preview');
+    
+    if (file) {
+        // Validasi ukuran file
+        if (file.size > 5242880) {
+            alert('❌ Ukuran file terlalu besar! Maksimal 5MB.');
+            this.value = '';
+            previewContainer.style.display = 'none';
+            return;
+        }
+        
+        // Validasi tipe file
+        const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+            alert('❌ Format file tidak valid! Gunakan PNG, JPG, JPEG, atau GIF.');
+            this.value = '';
+            previewContainer.style.display = 'none';
+            return;
+        }
+        
+        // Tampilkan preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewContainer.style.display = 'block';
+            previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        reader.readAsDataURL(file);
+    } else {
+        previewContainer.style.display = 'none';
+    }
+});
+
+// Preview foto KTP
+document.getElementById('ktp_photo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const previewContainer = document.getElementById('ktp_preview_container');
+    const previewImg = document.getElementById('ktp_preview');
+    
+    if (file) {
+        // Validasi ukuran file
+        if (file.size > 5242880) {
+            alert('❌ Ukuran file terlalu besar! Maksimal 5MB.');
+            this.value = '';
+            previewContainer.style.display = 'none';
+            return;
+        }
+        
+        // Validasi tipe file
+        const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+        if (!validTypes.includes(file.type)) {
+            alert('❌ Format file tidak valid! Gunakan PNG, JPG, atau JPEG.');
+            this.value = '';
+            previewContainer.style.display = 'none';
+            return;
+        }
+        
+        // Tampilkan preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewContainer.style.display = 'block';
+            previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        reader.readAsDataURL(file);
+    } else {
+        previewContainer.style.display = 'none';
+    }
+});
+
+// Konfirmasi sebelum submit
+document.querySelector('form').addEventListener('submit', function(e) {
+    const profileFile = document.getElementById('profile_photo').files[0];
+    const ktpFile = document.getElementById('ktp_photo').files[0];
+    
+    if (!profileFile && !ktpFile) {
+        e.preventDefault();
+        alert('⚠️ Anda belum memilih file apapun untuk diupload!');
+        return false;
+    }
+});
+</script>
+{% endblock %}

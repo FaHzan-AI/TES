@@ -46,7 +46,7 @@
         </small>
     </div>
     
-    <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('login') }}" 
+    <a href="{{ url_for('login_choice') }}" 
        class="btn btn-primary" id="backBtn">
         <i class="bi bi-house-door-fill"></i> Kembali ke Beranda
     </a>

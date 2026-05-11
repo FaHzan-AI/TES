@@ -3136,10 +3136,23 @@ def inject_theme():
 
 @app.errorhandler(429)
 def ratelimit_handler(e):
-    """Handler untuk error rate limit exceeded"""
-    return render_template('error_429.html', 
-                         description=e.description,
-                         retry_after=e.description.split()[-2] if 'in' in e.description else 'beberapa saat'), 429
+    try:
+        description = str(e.description) if e.description else "Terlalu banyak permintaan"
+        retry_after = 'beberapa saat'
+        if 'in' in description:
+            parts = description.split()
+            try:
+                idx = parts.index('in') + 1
+                retry_after = parts[idx] if idx < len(parts) else 'beberapa saat'
+            except (ValueError, IndexError):
+                retry_after = 'beberapa saat'
+    except Exception:
+        description = "Terlalu banyak permintaan. Coba lagi nanti."
+        retry_after = 'beberapa saat'
+
+    return render_template('error_429.html',
+                           description=description,
+                           retry_after=retry_after), 429
 
 if __name__ == '__main__':
     app.run(debug=True)

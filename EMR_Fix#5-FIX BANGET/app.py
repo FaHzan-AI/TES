@@ -7,6 +7,7 @@ import qrcode # Untuk 2FA
 import uuid
 import hashlib
 import secrets
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_mail import Mail, Message
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, send_file, abort
 from flask_sqlalchemy import SQLAlchemy
@@ -78,6 +79,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1) 
 app.config['SECRET_KEY'] = 'kunci-rahasia-yang-super-aman-dan-unik'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/emr_project_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -91,9 +93,23 @@ app.config['MAIL_DEFAULT_SENDER'] = ('Batam Sehat', 'noreply@erkaes.my.id')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
+def get_real_ip():
+    """
+    Ambil IP asli user dari header Cloudflare.
+    CF-Connecting-IP di-set otomatis oleh Cloudflare dengan IP real visitor.
+    """
+    cf_ip = request.headers.get('CF-Connecting-IP')
+    if cf_ip:
+        return cf_ip
+    # Fallback jika tidak ada CF header (direct access / testing lokal)
+    forwarded_for = request.headers.get('X-Forwarded-For')
+    if forwarded_for:
+        return forwarded_for.split(',')[0].strip()
+    return get_remote_address()
+
 limiter = Limiter(
     app=app,
-    key_func=get_remote_address,
+    key_func=get_real_ip,
     default_limits=["500 per day", "100 per hour"],
     storage_uri="redis://10.89.0.10:6379/0",
     strategy="fixed-window"

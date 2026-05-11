@@ -95,7 +95,7 @@ limiter = Limiter(
     app=app,
     key_func=get_remote_address,
     default_limits=["500 per day", "100 per hour"],
-    storage_uri="memory://",
+    storage_uri="redis://10.89.0.10:6379/0",
     strategy="fixed-window"
 )
 
